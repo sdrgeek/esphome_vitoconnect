@@ -13,13 +13,31 @@ OPTOLINKSensor::~OPTOLINKSensor() {
   // empty
 }
 
+void OPTOLINKSensor::set_option_labels(const std::vector<std::string> &labels) {
+  this->option_labels_ = labels;
+}
+
+void OPTOLINKSensor::set_option_values(const std::vector<uint8_t> &values) {
+  this->option_values_ = values;
+}
+
 void OPTOLINKSensor::decode(uint8_t* data, uint8_t length, Datapoint* dp) {
   assert(length >= _length);
 
   if (!dp) dp = this;
 
   
-  if (_length == 1){         // Commonly percentage with factor /2
+  if (_length == 1){         // Either state or percentage with factor /2
+    this->current_value_ = data[0];
+  
+    // find matching label
+    for (size_t i = 0; i < this->option_values_.size(); ++i) {
+      if (this->option_values_[i] == data[0]) {
+        publish_state(this->option_labels_[i]);
+        return;
+      }
+    }
+
     publish_state((float) data[0]);
   }
   else if (_length == 2){   // Commonly temperature with factor /10 or /100
