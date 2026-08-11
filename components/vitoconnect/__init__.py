@@ -13,6 +13,7 @@ vitoconnect_ns = cg.esphome_ns.namespace("vitoconnect")
 VitoConnect = vitoconnect_ns.class_("VitoConnect", uart.UARTDevice, cg.PollingComponent)
 
 CONF_VITOCONNECT_ID = "vitoconnect_id"
+CONF_BIT_MASK = "bit_mask"
 
 OPTOLINK_PROTOCOL = {
     "P300": "P300",

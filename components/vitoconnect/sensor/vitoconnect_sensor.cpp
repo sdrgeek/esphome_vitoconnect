@@ -18,20 +18,12 @@ void OPTOLINKSensor::decode(uint8_t* data, uint8_t length, Datapoint* dp) {
 
   if (!dp) dp = this;
 
-  
-  if (_length == 1){         // Commonly percentage with factor /2
-    publish_state((float) data[0]);
-  }
-  else if (_length == 2){   // Commonly temperature with factor /10 or /100
-    int16_t tmp = 0;
-    tmp = data[1] << 8 | data[0];
-    float value = tmp / 1.0f;
-    publish_state(value);
-  }  
-  else if (_length == 4){   // Commonly counter with different factors
+  if (_length <= 4) {
     uint32_t tmp = 0;
-    tmp = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0];
-    float value = tmp / 1.0f;
+    for (uint8_t i=0; i<_length; i++) {
+      tmp += data[i] << (i*8);
+    }
+    float value = (tmp & _bit_mask) / 1.0f;
     publish_state(value);
   }
 }
@@ -59,6 +51,10 @@ void OPTOLINKSensor::encode(uint8_t* raw, uint8_t length, float data) {
     raw[1] = tmp >> 8;
     raw[0] = tmp & 0xFF;
   }
+}
+
+void OPTOLINKSensor::setBitMask(uint32_t bit_mask) {
+  this->_bit_mask = bit_mask;
 }
 
 }  // namespace vitoconnect
